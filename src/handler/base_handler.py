@@ -24,11 +24,13 @@ class BaseHandler:
         self,
         message: Message | BaseMessage | WhatsAppWebhookPayload,
         sender_pushname: str | None = None,
+        payload: WhatsAppWebhookPayload | None = None,
     ) -> Message | None:
         """
         Store a message in the database
         :param message:  Message to store - can be a Message, BaseMessage or WhatsAppWebhookPayload
         :param sender_pushname:  Pushname of the sender [Optional]
+        :param payload: Original WhatsAppWebhookPayload for extracting additional data like group names
         :return: The stored message
         """
         if isinstance(message, WhatsAppWebhookPayload):
@@ -56,7 +58,22 @@ class BaseHandler:
             if message.group_jid:
                 group = await self.session.get(Group, message.group_jid)
                 if group is None:
-                    group = Group(**BaseGroup(group_jid=message.group_jid).model_dump())
+                    # Extract group name from original payload if available
+                    group_name = None
+                    if payload:
+                        # Check if group_subject is directly on payload
+                        if hasattr(payload, 'group_subject') and payload.group_subject:
+                            group_name = payload.group_subject
+                        # Check if it's in message context_info
+                        elif (hasattr(payload, 'message') and payload.message and
+                              hasattr(payload.message, 'context_info') and payload.message.context_info and
+                              hasattr(payload.message.context_info, 'group_subject')):
+                            group_name = payload.message.context_info.group_subject
+
+                    group = Group(**BaseGroup(
+                        group_jid=message.group_jid,
+                        group_name=group_name
+                    ).model_dump())
                     await self.upsert(group)
                     await self.session.flush()
 

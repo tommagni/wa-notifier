@@ -17,8 +17,15 @@ class MessageHandler(BaseHandler):
 
     async def __call__(self, payload: WhatsAppWebhookPayload):
         """Process incoming WhatsApp message: log to console, store in database, and send to Slack"""
+        # Log the entire incoming payload for debugging
+        logger.info(f"Incoming WhatsApp payload: {payload.model_dump_json()}")
+
         # Store the message in the database
-        message = await self.store_message(payload)
+        message = await self.store_message(payload, payload=payload)
+
+        # Load group relationship if it's a group message
+        if message and message.group_jid:
+            await self.session.refresh(message, ["group"])
 
         if message and message.text:
             # Log the message content to console
@@ -32,8 +39,9 @@ class MessageHandler(BaseHandler):
             if message.group_jid:
                 try:
                     async with httpx.AsyncClient() as client:
+                        group_name = message.group.group_name if message.group and message.group.group_name else "Unknown Group"
                         slack_payload = {
-                            "sender": f'{message.sender_jid} - {payload.pushname}',
+                            "sender": f'{message.sender_jid} - {payload.pushname} ({group_name})',
                             "content": message.text
                         }
                         response = await client.post(
