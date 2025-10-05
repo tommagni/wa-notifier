@@ -13,7 +13,8 @@ class TestRelevanceChecker:
 
     @pytest.mark.parametrize("message,expected", [
         # Positive cases - should notify
-        ("Looking for a React developer for our startup", True),
+        # ("Looking for a React developer for our startup", True),
+        ("היי חברים,\nמחפש פרילנס BE Python מנוסה לPart time חודשי. משימות של חובות טכנים ולעיתים גם פיתוח של פיצ׳רים סגורים.\nניסיון בK8S, AWS, Python שליטה מלאה.\nלכניסה וDelivery מיידי.\n🙏🏻🙏🏻", True),
         # ("Need Python backend engineer with AWS experience", True),
         # ("Hiring fullstack developer Node.js and React", True),
         # ("TypeScript frontend position available", True),
