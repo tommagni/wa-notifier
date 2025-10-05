@@ -9,6 +9,23 @@
             "type": "debugpy",
             "request": "launch",
             "program": "app/main.py"
+        },
+        {
+            "name": "run relevance checker tests",
+            "type": "debugpy",
+            "request": "launch",
+            "python": "/Users/tom/code/wa_llm/.venv/bin/python3",
+            "module": "pytest",
+            "args": [
+                "src/handler/test_relevance_checker.py",
+                "-v",
+                "-s"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
         }
     ]
 }
