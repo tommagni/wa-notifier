@@ -16,6 +16,7 @@ alwaysApply: true
   - Use the Receive an Object, Return an Object (RORO) pattern.
   
   Python/FastAPI
+  - For running any python script, use pipenv run.
   - Use def for pure functions and async def for asynchronous operations.
   - Use type hints for all function signatures. Prefer Pydantic models over raw dictionaries for input validation.
   - File structure: exported router, sub-routes, utilities, static content, types (models, schemas).
