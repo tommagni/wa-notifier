@@ -5,6 +5,7 @@ import httpx
 
 from models import WhatsAppWebhookPayload
 from .base_handler import BaseHandler
+from .relevance_checker import should_notify
 
 logger = logging.getLogger(__name__)
 
@@ -29,31 +30,38 @@ class MessageHandler(BaseHandler):
 
         if message and message.text:
             # Log the message content to console
-            logger.info(f"Received WhatsApp message: {message.text}")
-            logger.info(f"From: {message.sender_jid}, Chat: {message.chat_jid}")
+            logger.info("Received WhatsApp message: %s", message.text)
+            logger.info("From: %s, Chat: %s", message.sender_jid, message.chat_jid)
 
             if message.media_url:
-                logger.info(f"Media URL: {message.media_url}")
+                logger.info("Media URL: %s", message.media_url)
 
-            # Send message to Slack only if it's from a group
+            # Send message to Slack only if it's from a group and should be notified about
             if message.group_jid:
-                try:
-                    async with httpx.AsyncClient() as client:
-                        group_name = message.group.group_name if message.group and message.group.group_name else "Unknown Group"
-                        slack_payload = {
-                            "sender": f'{message.sender_jid} - {payload.pushname} ({group_name})',
-                            "content": message.text
-                        }
-                        response = await client.post(
-                            SLACK_WEBHOOK_URL,
-                            json=slack_payload,
-                            headers={"Content-Type": "application/json"}
-                        )
-                        response.raise_for_status()
-                        logger.info("Successfully sent group message to Slack")
-                except Exception as e:
-                    logger.error(f"Failed to send message to Slack: {e}")
+                # Check if this message should trigger a notification using LangChain
+                should_send_notification = await should_notify(message.text)
+                logger.info("Should send notification: %s", should_send_notification)
+                if should_send_notification:
+                    try:
+                        async with httpx.AsyncClient() as client:
+                            group_name = message.group.group_name if message.group and message.group.group_name else "Unknown Group"
+                            slack_payload = {
+                                "sender": f'{message.sender_jid} - {payload.pushname} ({group_name})',
+                                "content": message.text
+                            }
+                            response = await client.post(
+                                SLACK_WEBHOOK_URL,
+                                json=slack_payload,
+                                headers={"Content-Type": "application/json"}
+                            )
+                            response.raise_for_status()
+                            logger.info("Successfully sent group message to Slack")
+                    except Exception:
+                        logger.exception("Failed to send message to Slack")
+                else:
+                    logger.info("Skipping Slack notification - message doesn't match recruitment criteria")
             else:
                 logger.info("Skipping Slack notification for direct message")
         else:
-            logger.info(f"Received WhatsApp message without text content: {payload.model_dump_json()}")
+            logger.info("Received WhatsApp message without text content: %s",
+                       payload.model_dump_json())

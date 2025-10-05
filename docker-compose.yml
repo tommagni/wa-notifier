@@ -25,6 +25,7 @@ services:
     environment:
       - DB_URI=postgresql+asyncpg://user:password@postgres:5432/postgres
       - WHATSAPP_HOST=http://whatsapp:3000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
 
 volumes:
   wa_llm_whatsapp:
