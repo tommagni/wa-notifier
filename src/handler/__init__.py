@@ -28,21 +28,24 @@ class MessageHandler(BaseHandler):
             if message.media_url:
                 logger.info(f"Media URL: {message.media_url}")
 
-            # Send message to Slack
-            try:
-                async with httpx.AsyncClient() as client:
-                    slack_payload = {
-                        "sender": message.sender_jid,
-                        "content": message.text
-                    }
-                    response = await client.post(
-                        SLACK_WEBHOOK_URL,
-                        json=slack_payload,
-                        headers={"Content-Type": "application/json"}
-                    )
-                    response.raise_for_status()
-                    logger.info("Successfully sent message to Slack")
-            except Exception as e:
-                logger.error(f"Failed to send message to Slack: {e}")
+            # Send message to Slack only if it's from a group
+            if message.group_jid:
+                try:
+                    async with httpx.AsyncClient() as client:
+                        slack_payload = {
+                            "sender": f'{message.sender_jid} - {payload.pushname}',
+                            "content": message.text
+                        }
+                        response = await client.post(
+                            SLACK_WEBHOOK_URL,
+                            json=slack_payload,
+                            headers={"Content-Type": "application/json"}
+                        )
+                        response.raise_for_status()
+                        logger.info("Successfully sent group message to Slack")
+                except Exception as e:
+                    logger.error(f"Failed to send message to Slack: {e}")
+            else:
+                logger.info("Skipping Slack notification for direct message")
         else:
             logger.info(f"Received WhatsApp message without text content: {payload.model_dump_json()}")
