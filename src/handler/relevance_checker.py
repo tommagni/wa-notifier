@@ -60,33 +60,35 @@ else:
     notification_chain = None
 
 
-async def should_notify(message_text: str) -> bool:
+async def should_notify(message_text: str) -> tuple[bool, str]:
     """
     Determine if a Slack notification should be sent based on message content.
     Uses LangChain with OpenAI to analyze if the message is about looking for
     software engineers with Python, AWS, React, GCP, Node.js, or TypeScript expertise.
 
     :param message_text: The text content of the WhatsApp message
-    :return: True if notification should be sent, False otherwise
+    :return: Tuple of (should_notify: bool, reasoning: str)
     """
     try:
         if not message_text or not message_text.strip():
-            return False
+            return False, "Empty message"
 
         # If no API key is available, skip analysis and return False
         if notification_chain is None:
             logger.warning("OpenAI API key not available, skipping message analysis")
-            return False
+            return False, "API key not available"
 
-        result: NotificationDecision = await notification_chain.ainvoke({"message": message_text.strip()})
+        result = await notification_chain.ainvoke({"message": message_text.strip()})
 
-        should_notify = result.get('should_notify')
-        reasoning = result.get('reasoning')
+        # Convert dict result to NotificationDecision object for type safety
+        decision = NotificationDecision(**result)
+        should_notify = decision.should_notify
+        reasoning = decision.reasoning
         logger.info("Notification analysis for message: '%s...' -> %s (reasoning: %s)",
                    message_text[:100], should_notify, reasoning)
-        return should_notify
+        return should_notify, reasoning
 
     except Exception as e:
         logger.exception("Error analyzing message for notification: %s", e)
         # Default to not sending notification if analysis fails
-        return False
+        return False, f"Analysis failed: {str(e)}"

@@ -39,8 +39,15 @@ class MessageHandler(BaseHandler):
             # Send message to Slack only if it's from a group and should be notified about
             if message.group_jid:
                 # Check if this message should trigger a notification using LangChain
-                should_send_notification = await should_notify(message.text)
-                logger.info("Should send notification: %s", should_send_notification)
+                should_send_notification, reasoning = await should_notify(message.text)
+                logger.info("Should send notification: %s (reasoning: %s)", should_send_notification, reasoning)
+
+                # Update the message with relevance flag and reasoning
+                message.is_relevant = should_send_notification
+                message.reasoning = reasoning
+                self.session.add(message)
+                await self.session.commit()
+
                 if should_send_notification:
                     try:
                         async with httpx.AsyncClient() as client:
