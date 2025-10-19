@@ -34,10 +34,10 @@ cd wa_llm`
 Create a `.env` file in the src directory with the following variables:
 
 ```env
-WHATSAPP_HOST=http://localhost:3000
+WHATSAPP_HOST=http://localhost:3003
 WHATSAPP_BASIC_AUTH_USER=admin
 WHATSAPP_BASIC_AUTH_PASSWORD=admin
-DB_URI=postgresql+asyncpg://user:password@localhost:5432/postgres
+DB_URI=postgresql+asyncpg://user:password@localhost:5433/postgres
 LOG_LEVEL=INFO
 ```
 
@@ -45,17 +45,17 @@ LOG_LEVEL=INFO
 
 | Variable                       | Description                          | Default                                                      |
 | ------------------------------ | ------------------------------------ | ------------------------------------------------------------ |
-| `WHATSAPP_HOST`                | WhatsApp Web API URL                 | `http://localhost:3000`                                      |
+| `WHATSAPP_HOST`                | WhatsApp Web API URL                 | `http://localhost:3003`                                      |
 | `WHATSAPP_BASIC_AUTH_USER`     | WhatsApp API user                    | `admin`                                                      |
 | `WHATSAPP_BASIC_AUTH_PASSWORD` | WhatsApp API password                | `admin`                                                      |
-| `DB_URI`                       | PostgreSQL URI                       | `postgresql+asyncpg://user:password@localhost:5432/postgres` |
+| `DB_URI`                       | PostgreSQL URI                       | `postgresql+asyncpg://user:password@localhost:5433/postgres` |
 | `LOG_LEVEL`                    | Log level (`DEBUG`, `INFO`, `ERROR`) | `INFO`                                                       |
 
 ### 3. starting the services
 ```docker compose up -d```
 
 ### 4. Connect your device
-1. Open http://localhost:3000
+1. Open http://localhost:3003
 2. Scan the QR code with your WhatsApp mobile app.
 3. Invite the bot device to any target groups you want to monitor.
 4. Restart service: `docker compose restart web-server`
@@ -67,7 +67,7 @@ The app will automatically:
 - Handle all message types (text, media, contacts, etc.)
 
 ### 6. API usage
-Swagger docs available at: `http://localhost:8000/docs`
+Swagger docs available at: `http://localhost:3003/docs`
 
 #### Key Endpoints
 * <b>/webhook (POST)</b> Receives WhatsApp webhooks and processes messages

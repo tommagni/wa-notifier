@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: webhook_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - wa_llm_postgres:/var/lib/postgresql/data
     command: ["postgres", "-c", "log_statement=all"]
@@ -22,7 +22,7 @@ services:
     image: aldinokemal2104/go-whatsapp-web-multidevice:v7.2.1
     container_name: whatsapp
     ports:
-      - "3000:3000"
+      - "3003:3003"
     restart: always
     depends_on:
       postgres:
@@ -30,7 +30,7 @@ services:
     volumes:
       - wa_llm_whatsapp:/app/storages
     environment:
-      - APP_PORT=3000
+      - APP_PORT=3003
       - APP_OS=Chrome
       - DB_URI=postgres://user:password@postgres:5432/webhook_db?sslmode=disable
       - APP_BASIC_AUTH=admin:admin
