@@ -32,6 +32,8 @@ class BaseMessage(SQLModel):
     is_relevant: Optional[bool] = Field(default=None, nullable=True)
     reasoning: Optional[str] = Field(default=None, nullable=True)
     relevancy_total_token_count: Optional[int] = Field(default=None, nullable=True)
+    relevancy_input_tokens: Optional[int] = Field(default=None, nullable=True)
+    relevancy_output_tokens: Optional[int] = Field(default=None, nullable=True)
 
     @model_validator(mode="before")
     @classmethod

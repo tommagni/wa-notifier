@@ -39,13 +39,16 @@ class MessageHandler(BaseHandler):
             # Send message to Slack only if it's from a group and should be notified about
             if message.group_jid:
                 # Check if this message should trigger a notification using LangChain
-                should_send_notification, reasoning, token_count = await should_notify(message.text)
-                logger.info("Should send notification: %s (reasoning: %s, tokens: %s)", should_send_notification, reasoning, token_count)
+                should_send_notification, reasoning, total_tokens, input_tokens, output_tokens = await should_notify(message.text)
+                logger.info("Should send notification: %s (reasoning: %s, total: %s, input: %s, output: %s)",
+                           should_send_notification, reasoning, total_tokens, input_tokens, output_tokens)
 
-                # Update the message with relevance flag, reasoning, and token count
+                # Update the message with relevance flag, reasoning, and token counts
                 message.is_relevant = should_send_notification
                 message.reasoning = reasoning
-                message.relevancy_total_token_count = token_count
+                message.relevancy_total_token_count = total_tokens
+                message.relevancy_input_tokens = input_tokens
+                message.relevancy_output_tokens = output_tokens
                 self.session.add(message)
                 await self.session.commit()
 
