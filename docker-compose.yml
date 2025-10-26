@@ -4,21 +4,10 @@ services:
       file: docker-compose.base.yml
       service: postgres
 
-  whatsapp:
+  web-server:
     extends:
       file: docker-compose.base.yml
-      service: whatsapp
-    environment:
-      - WHATSAPP_WEBHOOK=http://web-server:5001/webhook
-
-  web-server:
-    build: .
-    volumes:
-      - ./src:/app/src
-      - ./.env:/app/.env
-      - ./migrations:/app/migrations
-    ports:
-      - "8000:5001"
+      service: web-server
     depends_on:
       - postgres
       - whatsapp
@@ -26,6 +15,25 @@ services:
       - DB_URI=postgresql+asyncpg://user:password@postgres:5432/postgres
       - WHATSAPP_HOST=http://whatsapp:3000
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+  whatsapp:
+    image: aldinokemal2104/go-whatsapp-web-multidevice:v7.2.1
+    container_name: whatsapp
+    ports:
+      - "3003:3003"
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - wa_llm_whatsapp:/app/storages
+    environment:
+      - APP_PORT=3003
+      - APP_OS=Chrome
+      - DB_URI=postgres://user:password@postgres:5432/webhook_db?sslmode=disable
+      - APP_BASIC_AUTH=admin:admin
+      - WHATSAPP_CHAT_STORAGE=false
+      - WHATSAPP_WEBHOOK=http://web-server:5001/webhook
 
 volumes:
   wa_llm_whatsapp:
