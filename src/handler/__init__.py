@@ -11,9 +11,6 @@ from .relevance_checker import should_notify
 
 logger = logging.getLogger(__name__)
 
-SLACK_WEBHOOK_URL = "https://hooks.slack.com/triggers/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"
-
-
 
 class MessageHandler(BaseHandler):
     def __init__(self, session: AsyncSession, settings: Settings):
@@ -89,7 +86,7 @@ class MessageHandler(BaseHandler):
                                 "content": message.text
                             }
                             response = await client.post(
-                                SLACK_WEBHOOK_URL,
+                                self.settings.slack_webhook_url,
                                 json=slack_payload,
                                 headers={"Content-Type": "application/json"}
                             )

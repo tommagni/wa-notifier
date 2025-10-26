@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     limit_to_group_id: Optional[str] = None
 
+    # Required settings
+    slack_webhook_url: str
+
     # OpenAI settings
     openai_api_key: Optional[str] = None
 
