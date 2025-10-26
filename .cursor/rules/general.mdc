@@ -1,0 +1,8 @@
+---
+description: General development rules that apply to all projects
+globs:
+alwaysApply: true
+---
+
+General Development Rules
+- Never try to commit anything to git - let the user handle version control.

@@ -1,4 +1,3 @@
-from os import environ
 from typing import Optional, Self
 
 from pydantic import model_validator
@@ -21,6 +20,7 @@ class Settings(BaseSettings):
     # Optional settings
     debug: bool = False
     log_level: str = "INFO"
+    limit_to_group_id: Optional[str] = None
 
     # OpenAI settings
     openai_api_key: Optional[str] = None

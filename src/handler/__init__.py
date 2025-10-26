@@ -4,6 +4,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 import httpx
 
 from models import WhatsAppWebhookPayload
+from config import Settings
+from whatsapp.jid import parse_jid
 from .base_handler import BaseHandler
 from .relevance_checker import should_notify
 
@@ -12,14 +14,40 @@ logger = logging.getLogger(__name__)
 SLACK_WEBHOOK_URL = "https://hooks.slack.com/triggers/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"
 
 
+
 class MessageHandler(BaseHandler):
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession, settings: Settings):
         super().__init__(session)
+        self.settings = settings
+
+    def _extract_group_jid(self, payload: WhatsAppWebhookPayload) -> str | None:
+        """Extract group JID from payload if it's a group message."""
+        if not payload.from_:
+            return None
+
+        # Parse sender and chat JIDs from the 'from_' field
+        if " in " in payload.from_:
+            sender_jid, chat_jid = payload.from_.split(" in ")
+        else:
+            chat_jid = payload.from_
+
+        # Parse the chat JID to check if it's a group
+        jid = parse_jid(chat_jid)
+        if jid.is_group():
+            return str(jid.to_non_ad())
+        return None
 
     async def __call__(self, payload: WhatsAppWebhookPayload):
         """Process incoming WhatsApp message: log to console, store in database, and send to Slack"""
         # Log the entire incoming payload for debugging
         logger.info(f"Incoming WhatsApp payload: {payload.model_dump_json()}")
+
+        # Check if we should limit to a specific group before storing
+        if self.settings.limit_to_group_id:
+            group_jid = self._extract_group_jid(payload)
+            if group_jid and group_jid != self.settings.limit_to_group_id:
+                logger.info(f"Ignoring message from group {group_jid} - limited to group {self.settings.limit_to_group_id}")
+                return
 
         # Store the message in the database
         message = await self.store_message(payload, payload=payload)
