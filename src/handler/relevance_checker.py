@@ -72,7 +72,8 @@ if openai_api_key:
     notification_prompt = PromptTemplate(
         input_variables=["message"],
         template="""
-You are a software development recruitment assistant. Analyze the following WhatsApp message and determine if it indicates someone is looking for:
+You are a software development recruitment assistant. 
+Analyze the below WhatsApp message (in quotes) and determine if it indicates someone is looking for:
 - software engineers with expertise in Python, AWS, React, GCP, Node.js, or TypeScript.
 - Recommendation for a software development agency.
 - Recommendation to an offshore developer or offshore development team(even if not mentioning stack).
@@ -81,7 +82,7 @@ Return a JSON object with two fields:
 - should_notify: boolean (true if this is a recruitment message for relevant tech stack, false otherwise)
 - reasoning: brief explanation of your decision
 
-Message: {message}
+Message to analyze: "{message}"
 
 Consider these examples:
 - "Looking for a React developer for our startup" → should_notify: true
