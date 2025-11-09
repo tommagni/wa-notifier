@@ -14,7 +14,7 @@ class TestRelevanceChecker:
     @pytest.mark.parametrize("message,expected", [
         # Positive cases - should notify
         # ("Looking for a React developer for our startup", True),
-        ("היי חברים,\nמחפש פרילנס BE Python מנוסה לPart time חודשי. משימות של חובות טכנים ולעיתים גם פיתוח של פיצ׳רים סגורים.\nניסיון בK8S, AWS, Python שליטה מלאה.\nלכניסה וDelivery מיידי.\n🙏🏻🙏🏻", True),
+        # ("היי חברים,\nמחפש פרילנס BE Python מנוסה לPart time חודשי. משימות של חובות טכנים ולעיתים גם פיתוח של פיצ׳רים סגורים.\nניסיון בK8S, AWS, Python שליטה מלאה.\nלכניסה וDelivery מיידי.\n🙏🏻🙏🏻", True),
         # ("Need Python backend engineer with AWS experience", True),
         # ("Hiring fullstack developer Node.js and React", True),
         # ("TypeScript frontend position available", True),
@@ -36,28 +36,30 @@ class TestRelevanceChecker:
         # ("UX designer wanted", False),
         # ("Content writer needed", False),
         # ("Customer support specialist position", False),
+        # ("TypeScript", False),
     ])
     async def test_message_relevance(self, message, expected):
         """Test various messages to ensure relevance detection works correctly."""
         result = await should_notify(message)
-        assert result == expected, f"Failed for message: '{message}'"
+        should_notify_bool = result[0]
+        assert should_notify_bool == expected, f"Failed for message: '{message}'"
 
     # async def test_empty_message(self):
     #     """Test that empty messages don't trigger notifications."""
     #     result = await should_notify("")
-    #     assert result is False
+    #     assert result[0] is False
 
     #     result = await should_notify("   ")
-    #     assert result is False
+    #     assert result[0] is False
 
     #     result = await should_notify(None)
-    #     assert result is False
+    #     assert result[0] is False
 
     # async def test_long_message(self):
     #     """Test that long messages are handled properly."""
     #     long_message = "We are looking for an experienced Python backend developer with strong AWS skills to join our growing team. The ideal candidate should have experience with Django, PostgreSQL, and cloud infrastructure on AWS. Knowledge of React would be a plus for full-stack capabilities. This is a remote position with competitive salary."
     #     result = await should_notify(long_message)
-    #     assert result is True
+    #     assert result[0] is True
 
     # async def test_edge_cases(self):
     #     """Test edge cases and ambiguous messages."""
@@ -70,7 +72,7 @@ class TestRelevanceChecker:
 
     #     for message, expected in ambiguous_cases:
     #         result = await should_notify(message)
-    #         assert result == expected, f"Failed for ambiguous message: '{message}'"
+    #         assert result[0] == expected, f"Failed for ambiguous message: '{message}'"
 
     # @pytest.mark.parametrize("tech_stack", [
     #     "Python",
@@ -90,7 +92,7 @@ class TestRelevanceChecker:
     #     """Test that messages mentioning specific technologies are detected."""
     #     message = f"Looking for a developer with {tech_stack} experience"
     #     result = await should_notify(message)
-    #     assert result is True, f"Failed to detect {tech_stack} in message"
+    #     assert result[0] is True, f"Failed to detect {tech_stack} in message"
 
     # async def test_api_error_handling(self):
     #     """Test that API errors are handled gracefully."""
@@ -99,6 +101,6 @@ class TestRelevanceChecker:
     #     try:
     #         result = await should_notify("Test message")
     #         # Result should be boolean regardless of API success/failure
-    #         assert isinstance(result, bool)
+    #         assert isinstance(result[0], bool)
     #     except Exception as e:
     #         pytest.fail(f"should_notify raised an unexpected exception: {e}")

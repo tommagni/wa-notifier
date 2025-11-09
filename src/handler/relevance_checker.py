@@ -72,11 +72,16 @@ if openai_api_key:
     notification_prompt = PromptTemplate(
         input_variables=["message"],
         template="""
-You are a software development recruitment assistant. 
-Analyze the below WhatsApp message (in quotes) and determine if it indicates someone is looking for:
-- software engineers with expertise in Python, AWS, React, GCP, Node.js, or TypeScript.
-- Recommendation for a software development agency.
-- Recommendation to an offshore developer or offshore development team(even if not mentioning stack).
+You are a software development agency lead notifications assistant. You monitor whatsapp messages and determine if they are relevant to the software development agency.
+
+About the agency:
+- Tech stack: Python, AWS, React, GCP, Node.js, TypeScript.
+- Offering: Full stack / Backend / Frontend devs.
+
+Analyze the below message (in quotes) and determine if it indicates someone is looking for:
+- software engineer(/s) with expertise in the agency tech stack (partial match is enough).
+- Recommendation for a software development agency (even if not mentioning tech stack).
+- Recommendation to an offshore developer or offshore development team(even if not mentioning tech stack).
 
 Return a JSON object with two fields:
 - should_notify: boolean (true if this is a recruitment message for relevant tech stack, false otherwise)
@@ -84,7 +89,10 @@ Return a JSON object with two fields:
 
 Message to analyze: "{message}"
 
-Consider these examples:
+Clarifications:
+- If the message is not about looking for a software engineer / recommendation message, return false.
+
+Examples:
 - "Looking for a React developer for our startup" → should_notify: true
 - "Need Python backend engineer with AWS experience" → should_notify: true
 - "Hiring fullstack developer Node.js and React" → should_notify: true
@@ -95,6 +103,7 @@ Consider these examples:
 - "Looking for a graphic designer" → should_notify: false
 - "Looking for a co-founder for our startup with react&aws experience" → should_notify: false
 - "Looking for an offshore developer for our startup" → should_notify: true
+- "React, Typsecript" → should_notify: false (it's not looking for a software engineer / recommendation message)
 
 {format_instructions}
 """,
