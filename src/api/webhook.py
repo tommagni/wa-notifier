@@ -25,21 +25,26 @@ async def webhook(
     """
     # Only process messages that have a sender (from_ field) and actual content
     if payload.from_:
-        if _has_content(payload):
+        if should_process_message(payload):
             await handler(payload)
         else:
-            logger.debug(
-                f"Skipping non-text message from {payload.from_} "
-                f"at {payload.timestamp}"
+            logger.info(
+                f"Skipping message from {payload.from_} "
+                f"at {payload.timestamp} because it doesn't have text content or has less than 2 words"
             )
 
     return "ok"
 
 
-def _has_content(payload: WhatsAppWebhookPayload) -> bool:
+def should_process_message(payload: WhatsAppWebhookPayload) -> bool:
     """
     Check if the webhook payload contains text content.
-    Only processes pure text messages, filters out media, reactions, and other message types.
+    Only processes pure text messages with more than 2 words, filters out media, reactions, and other message types.
     """
     # Only process text messages - no media, no reactions, no special content types
-    return bool(payload.message and payload.message.text)
+    if not payload.message or not payload.message.text:
+        return False
+
+    # Only process messages with more than 2 words
+    word_count = len(payload.message.text.strip().split())
+    return word_count > 2
