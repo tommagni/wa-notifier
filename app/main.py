@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlmodel.ext.asyncio.session import AsyncSession
 import logging
 
-from api import status, webhook
+from api import status, webhook, dashboard
 import models  # noqa
 from config import Settings
 
@@ -54,6 +54,7 @@ app = FastAPI(title="WhatsApp Message Reader", lifespan=lifespan)
 
 app.include_router(webhook.router)
 app.include_router(status.router)
+app.include_router(dashboard.router)
 
 if __name__ == "__main__":
     import uvicorn
