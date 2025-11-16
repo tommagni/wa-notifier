@@ -16,6 +16,7 @@ dependencies = [
     "pydantic>=2.6.1",
     "sqlalchemy[asyncio]>=2.0.37",
     "sqlmodel>=0.0.22",
+    "strawberry-graphql[fastapi]>=0.245.0",
     "tenacity>=9.0.0",
     "uvicorn>=0.34.0",
 ]

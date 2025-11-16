@@ -69,9 +69,51 @@ The app will automatically:
 ### 6. API usage
 Swagger docs available at: `http://localhost:3003/docs`
 
-#### Key Endpoints
+#### REST API Endpoints
 * <b>/webhook (POST)</b> Receives WhatsApp webhooks and processes messages
 * <b>/status (GET)</b> Health check endpoint
+
+#### GraphQL API
+GraphQL playground available at: `http://localhost:3003/graphql`
+
+The GraphQL API provides flexible querying capabilities for messages, groups, and senders with advanced filtering and pagination.
+
+##### Key Queries
+* <b>messages</b> - Query messages with filtering (sender, group, relevance, date range) and pagination
+* <b>groups</b> - Query WhatsApp groups with filtering (managed status, spam notifications) and pagination
+* <b>senders</b> - Query message senders with filtering and pagination
+* <b>message(id)</b> - Get a single message by ID
+* <b>group(jid)</b> - Get a single group by JID
+* <b>sender(jid)</b> - Get a single sender by JID
+
+##### Example GraphQL Query
+```graphql
+query {
+  messages(
+    filter: {
+      isRelevant: true,
+      startDate: "2024-01-01T00:00:00Z"
+    },
+    pagination: {
+      limit: 10,
+      offset: 0
+    }
+  ) {
+    messageId
+    text
+    timestamp
+    isRelevant
+    sender {
+      jid
+      pushName
+    }
+    group {
+      groupJid
+      groupName
+    }
+  }
+}
+```
 
 ---
 ## Developing

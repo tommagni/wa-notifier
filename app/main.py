@@ -2,11 +2,13 @@ from contextlib import asynccontextmanager
 from warnings import warn
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlmodel.ext.asyncio.session import AsyncSession
 import logging
 
 from api import status, webhook
+from api.graphql import create_graphql_router
 import models  # noqa
 from config import Settings
 
@@ -51,9 +53,21 @@ async def lifespan(app: FastAPI):
 # Initialize FastAPI app
 app = FastAPI(title="WhatsApp Message Reader", lifespan=lifespan)
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(webhook.router)
 app.include_router(status.router)
+
+# Include GraphQL router (handles both /graphql endpoint and GraphiQL UI)
+graphql_app = create_graphql_router()
+app.include_router(graphql_app, prefix="")
 
 if __name__ == "__main__":
     import uvicorn
