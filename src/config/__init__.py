@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     # API settings
     port: int = 5001
     host: str = "0.0.0.0"
+    host_ip_address: Optional[str] = None
 
     # Database settings
     db_uri: str
