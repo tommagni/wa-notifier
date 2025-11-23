@@ -2,6 +2,19 @@
 
 Simple WhatsApp webhook receiver that **logs all incoming messages to console and stores them in PostgreSQL**.
 
+
+
+# Set crontab in prod
+
+To delete all existing crontabs
+```
+crontab -r
+```
+
+Then, to set the crontab to happen each day at 15:31 do:
+```
+  (crontab -l 2>/dev/null; echo "31 15 * * * /Users/tom/code/wa-notifier/restart-containers.sh >> /Users/tom/code/wa-notifier/restart-containers.log 2>&1") | crontab -
+```
 ---
 
 ## Features
