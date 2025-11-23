@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -44,7 +44,7 @@ def should_process_message(payload: WhatsAppWebhookPayload) -> bool:
     Also filters out messages older than 4 days.
     """
     # Skip messages older than 4 days
-    if payload.timestamp < datetime.now() - timedelta(days=4):
+    if payload.timestamp < datetime.now(timezone.utc) - timedelta(days=4):
         return False
 
     # Only process text messages - no media, no reactions, no special content types

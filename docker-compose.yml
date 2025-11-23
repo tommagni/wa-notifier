@@ -3,11 +3,13 @@ services:
     extends:
       file: docker-compose.base.yml
       service: postgres
+    restart: always
 
   web-server:
     extends:
       file: docker-compose.base.yml
       service: web-server
+    restart: always
     depends_on:
       - postgres
       - whatsapp
