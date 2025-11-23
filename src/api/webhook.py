@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -30,7 +31,7 @@ async def webhook(
         else:
             logger.info(
                 f"Skipping message from {payload.from_} "
-                f"at {payload.timestamp} because it doesn't have text content or has less than 2 words"
+                f"at {payload.timestamp} because it doesn't have text content, has less than 2 words, or is older than 4 days"
             )
 
     return "ok"
@@ -40,7 +41,12 @@ def should_process_message(payload: WhatsAppWebhookPayload) -> bool:
     """
     Check if the webhook payload contains text content.
     Only processes pure text messages with more than 2 words, filters out media, reactions, and other message types.
+    Also filters out messages older than 4 days.
     """
+    # Skip messages older than 4 days
+    if payload.timestamp < datetime.now() - timedelta(days=4):
+        return False
+
     # Only process text messages - no media, no reactions, no special content types
     if not payload.message or not payload.message.text:
         return False
