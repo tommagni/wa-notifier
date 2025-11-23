@@ -6,6 +6,8 @@
 
 echo "$(date): Restarting Docker Compose containers..."
 
+cd /Users/tom/code/wa-notifier || exit 1
+
 # Stop containers gracefully
 /usr/local/bin/docker compose down
 
