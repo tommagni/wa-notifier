@@ -17,7 +17,7 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
 
   whatsapp:
-    image: aldinokemal2104/go-whatsapp-web-multidevice:v7.2.1
+    image: aldinokemal2104/go-whatsapp-web-multidevice:latest
     container_name: whatsapp
     ports:
       - "3003:3003"
