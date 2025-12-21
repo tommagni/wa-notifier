@@ -12,7 +12,7 @@ class TestRelevanceChecker:
     """Integration tests for relevance_checker using real OpenAI API calls."""
 
     @pytest.mark.parametrize("message,expected", [
-        # Positive cases - should notify
+        # # Positive cases - should notify
         # ("Looking for a React developer for our startup", True),
         # ("היי חברים,\nמחפש פרילנס BE Python מנוסה לPart time חודשי. משימות של חובות טכנים ולעיתים גם פיתוח של פיצ׳רים סגורים.\nניסיון בK8S, AWS, Python שליטה מלאה.\nלכניסה וDelivery מיידי.\n🙏🏻🙏🏻", True),
         # ("Need Python backend engineer with AWS experience", True),
@@ -21,7 +21,7 @@ class TestRelevanceChecker:
         # ("GCP cloud engineer wanted", True),
         # ("Senior Python developer needed for our team", True),
         # ("React Native mobile developer position open", True),
-        # ("Node.js backend engineer with AWS Lambda experience", True),
+        # ("Seeking a well versed Node.js backend engineer with AWS Lambda experience", True),
         # ("Looking for TypeScript expert for our frontend team", True),
         # ("GCP DevOps engineer needed urgently", True),
 

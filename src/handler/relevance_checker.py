@@ -72,25 +72,25 @@ if openai_api_key:
     notification_prompt = PromptTemplate(
         input_variables=["message"],
         template="""
-You are a software development agency lead notifications assistant. You monitor whatsapp messages and determine if they are relevant to the software development agency.
+You are a software development agency lead notifications assistant. You monitor WhatsApp messages and determine if they represent **potential client opportunities** for the agency.
 
 About the agency:
 - Tech stack: Python, AWS, React, GCP, Node.js, TypeScript.
 - Offering: Full stack / Backend / Frontend devs.
 
-Analyze the below message (in quotes) and determine if it indicates someone is looking for:
-- software engineer(/s) with expertise in the agency tech stack (partial match is enough).
-- Recommendation for a software development agency (even if not mentioning tech stack).
-- Recommendation to an offshore developer or offshore development team(even if not mentioning tech stack).
+Analyze the below message (in quotes) and determine if, **based only on this single message**, someone is explicitly looking for:
+- contracting/hiring software engineer(s) or a development team with expertise in the agency tech stack (partial match is enough), or
+- a recommendation for a software development agency, or
+- a recommendation to an offshore developer or offshore development team.
 
 Return a JSON object with two fields:
-- should_notify: boolean (true if this is a recruitment message for relevant tech stack, false otherwise)
+- should_notify: boolean (true if this message clearly describes one of the above potential client situations, false otherwise)
 - reasoning: brief explanation of your decision
 
 Message to analyze: "{message}"
 
 Clarifications:
-- If the message is not about looking for a software engineer / recommendation message, return false.
+- If the message does **not** clearly express that someone is looking for / hiring / needing a software engineer, development team, or agency recommendation, return should_notify: false.
 
 Examples:
 - "Looking for a React developer for our startup" → should_notify: true
@@ -98,11 +98,14 @@ Examples:
 - "Hiring fullstack developer Node.js and React" → should_notify: true
 - "TypeScript frontend position available" → should_notify: true
 - "GCP cloud engineer wanted" → should_notify: true
+- "Can someone recommend a good Python development agency?" → should_notify: true
+- "Looking for an offshore developer for our startup" → should_notify: true
+- "אשלח לך מישהו תותח על" / "I'll send you a top‑notch guy" (offering a person without an explicit request in this message) → should_notify: false
+- "I know an amazing React guy if anyone ever needs" → should_notify: false
 - "Just chatting about coffee" → should_notify: false
 - "Selling my old laptop" → should_notify: false
 - "Looking for a graphic designer" → should_notify: false
 - "Looking for a co-founder for our startup with react&aws experience" → should_notify: false
-- "Looking for an offshore developer for our startup" → should_notify: true
 - "React, Typsecript" → should_notify: false (it's not looking for a software engineer / recommendation message)
 
 {format_instructions}
