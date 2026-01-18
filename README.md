@@ -158,6 +158,41 @@ The project consists of several key components:
 2. Create a feature branch
 3. Submit a pull request
 
+
+# Launchctl server monitor config
+Monitors mac 2014 server every hour
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+  <key>Label</key>
+  <string>com.local.servermonitor</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/tom/code/wa_llm/servermonitor.sh</string>
+  </array>
+
+  <key>StartInterval</key>
+  <integer>3600</integer> <!-- once per hour -->
+
+  <key>RunAtLoad</key>
+  <true/>
+
+</dict>
+</plist>
+```
+
+Reload the monitor script on launchctl
+```
+launchctl unload ~/Library/LaunchAgents/com.local.servermonitor.plist
+launchctl load ~/Library/LaunchAgents/com.local.servermonitor.plist
+```
+
 ---
 ## License
 [LICENCE](CODE_OF_CONDUCT.md)
