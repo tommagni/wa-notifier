@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVER="10.0.0.400"
+SERVER="10.0.0.9"
 # WEBHOOK_URL="https://slack.com/shortcuts/Ft0A9C9K05D4/338f1f753f4d775d2358bbffcc886528"
 STATE_FILE="$HOME/.mac_2014_server_state"
 
