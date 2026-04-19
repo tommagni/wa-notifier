@@ -1,4 +1,3 @@
-from copy import deepcopy
 from contextlib import asynccontextmanager
 import sys
 from warnings import warn
@@ -18,17 +17,27 @@ from utils.log_formatter import LOG_DATE_FORMAT, LOG_FORMAT, UTCKeyValueFormatte
 settings = Settings()  # pyright: ignore [reportCallIssue]
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    global settings
-    # Create and configure logger
+def configure_logging(log_level: str) -> None:
     root_logger = logging.getLogger()
     root_logger.handlers.clear()
-    root_logger.setLevel(settings.log_level.upper())
+    root_logger.setLevel(log_level.upper())
 
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(UTCKeyValueFormatter(LOG_FORMAT, LOG_DATE_FORMAT))
     root_logger.addHandler(handler)
+
+    # Ensure Uvicorn loggers propagate to the root handler and don't keep
+    # their own default formatter/handlers.
+    for logger_name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+        logger = logging.getLogger(logger_name)
+        logger.handlers.clear()
+        logger.propagate = True
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global settings
+    configure_logging(settings.log_level)
 
     app.state.settings = settings
 
@@ -83,28 +92,14 @@ app.include_router(graphql_app, prefix="")
 
 if __name__ == "__main__":
     import uvicorn
-    from uvicorn.config import LOGGING_CONFIG
 
+    configure_logging(settings.log_level)
     print(f"Running on {settings.host}:{settings.port}")
-
-    uvicorn_log_config = deepcopy(LOGGING_CONFIG)
-    uvicorn_log_config["handlers"]["default"]["stream"] = "ext://sys.stdout"
-    uvicorn_log_config["handlers"]["access"]["stream"] = "ext://sys.stdout"
-    uvicorn_log_config["formatters"]["default"] = {
-        "class": "utils.log_formatter.UTCKeyValueFormatter",
-        "format": LOG_FORMAT,
-        "datefmt": LOG_DATE_FORMAT,
-    }
-    uvicorn_log_config["formatters"]["access"] = {
-        "class": "utils.log_formatter.UTCKeyValueFormatter",
-        "format": LOG_FORMAT,
-        "datefmt": LOG_DATE_FORMAT,
-    }
 
     uvicorn.run(
         "main:app",
         host=settings.host,
         port=settings.port,
         reload=True,
-        log_config=uvicorn_log_config,
+        log_config=None,
     )
