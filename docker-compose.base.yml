@@ -20,6 +20,11 @@ services:
 
   web-server:
     build: .
+    labels:
+      com.datadoghq.tags.service: "wa-llm-api"
+      com.datadoghq.tags.env: "${ENV_NAME:-local}"
+      com.datadoghq.tags.version: "dev"
+      com.datadoghq.ad.logs: '[{"source":"python","service":"wa-llm-api"}]'
     volumes:
       - ./src:/app/src
       - ./.env:/app/.env

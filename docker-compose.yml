@@ -1,4 +1,22 @@
 services:
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:latest
+    container_name: datadog-agent
+    restart: always
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE=${DD_SITE:-us5.datadoghq.com}
+      - ENV_NAME=${ENV_NAME:-unknown}
+      - DD_SERVICE=wa-llm
+      - DD_LOGS_ENABLED=true
+      - DD_APM_ENABLED=false
+      - DD_PROCESS_AGENT_ENABLED=true
+      - DD_CONTAINER_EXCLUDE=name:datadog-agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+
   postgres:
     extends:
       file: docker-compose.base.yml
@@ -11,6 +29,7 @@ services:
       service: web-server
     restart: always
     depends_on:
+      - datadog-agent
       - postgres
       - whatsapp
     environment:
@@ -21,6 +40,11 @@ services:
   whatsapp:
     image: aldinokemal2104/go-whatsapp-web-multidevice:latest
     container_name: whatsapp
+    labels:
+      com.datadoghq.tags.service: "wa-llm-whatsapp"
+      com.datadoghq.tags.env: "${ENV_NAME:-unknown}"
+      com.datadoghq.tags.version: "dev"
+      com.datadoghq.ad.logs: '[{"source":"go","service":"wa-llm-whatsapp"}]'
     ports:
       - "3003:3003"
     restart: always

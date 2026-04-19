@@ -1,4 +1,6 @@
+from copy import deepcopy
 from contextlib import asynccontextmanager
+import sys
 from warnings import warn
 
 from fastapi import FastAPI
@@ -11,6 +13,7 @@ from api import status, webhook
 from api.graphql import create_graphql_router
 import models  # noqa
 from config import Settings
+from utils.log_formatter import LOG_DATE_FORMAT, LOG_FORMAT, UTCKeyValueFormatter
 
 settings = Settings()  # pyright: ignore [reportCallIssue]
 
@@ -19,11 +22,13 @@ settings = Settings()  # pyright: ignore [reportCallIssue]
 async def lifespan(app: FastAPI):
     global settings
     # Create and configure logger
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        level=settings.log_level,
-    )
+    root_logger = logging.getLogger()
+    root_logger.handlers.clear()
+    root_logger.setLevel(settings.log_level.upper())
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(UTCKeyValueFormatter(LOG_FORMAT, LOG_DATE_FORMAT))
+    root_logger.addHandler(handler)
 
     app.state.settings = settings
 
@@ -78,7 +83,28 @@ app.include_router(graphql_app, prefix="")
 
 if __name__ == "__main__":
     import uvicorn
+    from uvicorn.config import LOGGING_CONFIG
 
     print(f"Running on {settings.host}:{settings.port}")
 
-    uvicorn.run("main:app", host=settings.host, port=settings.port, reload=True)
+    uvicorn_log_config = deepcopy(LOGGING_CONFIG)
+    uvicorn_log_config["handlers"]["default"]["stream"] = "ext://sys.stdout"
+    uvicorn_log_config["handlers"]["access"]["stream"] = "ext://sys.stdout"
+    uvicorn_log_config["formatters"]["default"] = {
+        "class": "utils.log_formatter.UTCKeyValueFormatter",
+        "format": LOG_FORMAT,
+        "datefmt": LOG_DATE_FORMAT,
+    }
+    uvicorn_log_config["formatters"]["access"] = {
+        "class": "utils.log_formatter.UTCKeyValueFormatter",
+        "format": LOG_FORMAT,
+        "datefmt": LOG_DATE_FORMAT,
+    }
+
+    uvicorn.run(
+        "main:app",
+        host=settings.host,
+        port=settings.port,
+        reload=True,
+        log_config=uvicorn_log_config,
+    )

@@ -15,10 +15,10 @@ cd /Users/tom/code/wa-notifier || exit 1
 sleep 5
 
 # Remove existing WhatsApp image to free space before pull
-/usr/local/bin/docker image rm aldinokemal2104/go-whatsapp-web-multidevice:latest || true
+#/usr/local/bin/docker image rm aldinokemal2104/go-whatsapp-web-multidevice:latest || true
 
 # Re-pull latest WhatsApp image
-/usr/local/bin/docker compose pull whatsapp
+#/usr/local/bin/docker compose pull whatsapp
 
 # Start containers again
 /usr/local/bin/docker compose up -d
