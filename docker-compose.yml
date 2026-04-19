@@ -38,7 +38,7 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
 
   whatsapp:
-    image: aldinokemal2104/go-whatsapp-web-multidevice:latest
+    image: aldinokemal2104/go-whatsapp-web-multidevice:v7.11.4
     container_name: whatsapp
     labels:
       com.datadoghq.tags.service: "wa-llm-whatsapp"
