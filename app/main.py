@@ -26,12 +26,11 @@ def configure_logging(log_level: str) -> None:
     handler.setFormatter(UTCKeyValueFormatter(LOG_FORMAT, LOG_DATE_FORMAT))
     root_logger.addHandler(handler)
 
-    # Ensure Uvicorn loggers propagate to the root handler and don't keep
-    # their own default formatter/handlers.
-    for logger_name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
-        logger = logging.getLogger(logger_name)
-        logger.handlers.clear()
-        logger.propagate = True
+    # Remove handlers from all known loggers so formatting is consistent.
+    for logger_obj in logging.root.manager.loggerDict.values():
+        if isinstance(logger_obj, logging.Logger):
+            logger_obj.handlers.clear()
+            logger_obj.propagate = True
 
 
 @asynccontextmanager
